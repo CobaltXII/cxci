@@ -120,6 +120,11 @@ struct token_stream_t {
 			TOKEN_DEBUG
 		};
 	}
+
+	// Skips whitespace.
+	void skip_whitespace() {
+		read_while(chr_whitespace);
+	}
 };
 
 #undef TOKEN_DEBUG
