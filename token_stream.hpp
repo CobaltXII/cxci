@@ -53,6 +53,24 @@ struct token_stream_t {
 		}
 		return str;
 	}
+
+	// Reads an identifier.
+	token_t read_identifier() {
+		std::string str = read_while(chr_id);
+		if (str == "if") {
+			return {tk_if, str, TOKEN_DEBUG};
+		} else if (str == "int") {
+			return {tk_int, str, TOKEN_DEBUG};
+		} else if (str == "else") {
+			return {tk_else, str, TOKEN_DEBUG};
+		} else if (str == "while") {
+			return {tk_while, str, TOKEN_DEBUG};
+		} else if (str == "return") {
+			return {tk_return, str, TOKEN_DEBUG};
+		} else {
+			return {tk_identifier, str, TOKEN_DEBUG};
+		}
+	}
 };
 
 #undef TOKEN_DEBUG
