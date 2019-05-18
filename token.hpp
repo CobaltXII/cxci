@@ -50,3 +50,43 @@ enum token_type_t {
 	tk_asterisk					// * | Unary value-of and binary
 								//     multiplication
 };
+
+// All token types as strings.
+std::string token_type_str[] = {
+	// Special tokens.
+	"identifier",
+	"integer literal",
+	"string literal",
+	"character literal",
+	"end-of-file",
+	// Reserved words.
+	"'if'",
+	"'int'",
+	"'else'",
+	"'while'",
+	"'return'",
+	// Punctuation.
+	"'('",
+	"')'",
+	"'['",
+	"']'",
+	"'{'",
+	"'}'",
+	"','",
+	"';'",
+	// Binary operators.
+	"'/'",
+	"'%'",
+	"'='",
+	"'&&'",
+	"'||'",
+	"'=='",
+	"'!='",
+	// Unary operators.
+	"'&'",
+	"'!'",
+	// Ambiguous operators.
+	"'+'",
+	"'-'",
+	"'*'"
+};
