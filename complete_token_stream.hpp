@@ -40,4 +40,29 @@ struct complete_token_stream_t {
 		return tokens[cursor].type == tk_eof;
 	}
 
+	// Print an error message, then exit.
+	void die(std::string error, token_t token) {
+		std::cerr << set_color(bold_white) << filename << ":";
+		std::cerr << token.lineno + 1 << ":" << token.colno + 1 - token.text.length() << ": ";
+		std::cerr << set_color(bold_red) << "error: ";
+		std::cerr << set_color(bold_white) << error << set_color(reset) << std::endl;
+		// Print the line where the error occurred.
+		std::stringstream in(input.input.buffer);
+		std::string line;
+		for (int i = 0; i < token.lineno; i++) {
+			std::getline(in, line);
+		}
+		std::getline(in, line);
+		std::cerr << line << std::endl;
+		// Print an indicator pointing to the column where the error occurred.
+		for (int i = 0; i < token.colno - token.text.length(); i++) {
+			if (line[i] == '\t') {
+				std::cerr << '\t';
+			} else {
+				std::cerr << ' ';
+			}
+		}
+		std::cerr << set_color(bold_green) << '^' << set_color(reset) << std::endl;
+		exit(2);
+	}
 };
