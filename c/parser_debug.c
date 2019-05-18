@@ -9,7 +9,7 @@
 
 // Returns the length of a string.
 int strlen(int* str) {
-	int len = [];
+	int len = 0;
 	while (*str != 0) {
 		str = str + 1;
 		len = len + 1;
