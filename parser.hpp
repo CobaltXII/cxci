@@ -24,7 +24,7 @@ struct parser_t {
 	// Default constructor.
 	parser_t(std::string filename, std::string buffer) {
 		this->filename = filename;
-		input = complete_token_stream_t(filename, token_stream_t(buffer));
+		input = complete_token_stream_t(filename, token_stream_t(filename, buffer));
 	}
 
 	// Print an error message, then exit.

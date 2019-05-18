@@ -10,11 +10,13 @@
 
 // A token stream.
 struct token_stream_t {
+	std::string filename;
 	char_stream_t input;
 
 	// Default constructor.
-	token_stream_t(std::string buffer = "") {
-		input = char_stream_t(buffer);
+	token_stream_t(std::string filename = "", std::string buffer = "") {
+		this->filename = filename;
+		input = char_stream_t(filename, buffer);
 	}
 
 	// Checks if a character is a digit.
@@ -265,14 +267,14 @@ struct token_stream_t {
 		else if (ch == '|') {
 			input.next();
 			if (input.eof()) {
-				input.die("Expected '|' after '|'");
+				input.die("expected '|'");
 				return {};
 			}
 			int ch = input.next();
 			if (ch == '|') {
 				return {tk_bi_logical_or, "||", TOKEN_DEBUG};
 			} else {
-				input.die("Expected '|' after '|'");
+				input.die("expected '|'");
 				return {};
 			}
 		}
@@ -290,7 +292,7 @@ struct token_stream_t {
 		}
 
 		// Encountered an unexpected character.
-		input.die("Unexpected character");
+		input.die("unexpected character");
 		return {};
 	}
 };
