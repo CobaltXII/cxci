@@ -136,6 +136,23 @@ struct token_stream_t {
 		read_while(chr_newline);
 		input.next();
 	}
+
+	// Reads the next token.
+	token_t next() {
+		skip_whitespace();
+		
+		if (input.eof()) {
+			return {tk_eof, "", TOKEN_DEBUG};
+		}
+
+		int ch = input.peek();
+
+		// Skip comments.
+		if (ch == '/' && input.peek_two() == '/') {
+			skip_comment();
+			return next();
+		}
+	}
 };
 
 #undef TOKEN_DEBUG
