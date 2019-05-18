@@ -125,6 +125,17 @@ struct token_stream_t {
 	void skip_whitespace() {
 		read_while(chr_whitespace);
 	}
+
+	// Checks if a character is not a newline character.
+	static bool chr_newline(int ch) {
+		return ch != '\n';
+	}
+
+	// Skips comments.
+	void skip_comment() {
+		read_while(chr_newline);
+		input.next();
+	}
 };
 
 #undef TOKEN_DEBUG
