@@ -16,6 +16,11 @@ struct token_stream_t {
 	token_stream_t(std::string buffer = "") {
 		input = char_stream_t(buffer);
 	}
+
+	// Checks if a character is a digit.
+	static bool chr_digit(int ch) {
+		return ch >= '0' && ch <= '9';
+	}
 };
 
 #undef TOKEN_DEBUG
