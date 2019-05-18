@@ -180,6 +180,16 @@ struct token_stream_t {
 			input.next();
 			return {tk_right_parenthesis, ")", TOKEN_DEBUG};
 		}
+		// Check for left brackets.
+		else if (ch == '[') {
+			input.next();
+			return {tk_left_bracket, "[", TOKEN_DEBUG};
+		}
+		// Check for right brackets.
+		else if (ch == ']') {
+			input.next();
+			return {tk_right_bracket, "]", TOKEN_DEBUG};
+		}
 	}
 };
 
