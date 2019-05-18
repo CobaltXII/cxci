@@ -109,3 +109,11 @@ std::vector<std::string> make_token_type_str_pad() {
 
 // All token types as strings, padded.
 std::vector<std::string> token_type_str_pad = make_token_type_str_pad();
+
+// A token.
+struct token_t {
+	token_type_t type;
+	std::string text;
+	long lineno;
+	long colno;
+};
