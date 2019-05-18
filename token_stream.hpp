@@ -21,6 +21,13 @@ struct token_stream_t {
 	static bool chr_digit(int ch) {
 		return ch >= '0' && ch <= '9';
 	}
+
+	// Checks if a character can be the first character in an identifier.
+	static bool chr_id_start(int ch) {
+		return (ch >= 'a' && ch <= 'z') ||
+			   (ch >= 'A' && ch <= 'Z') ||
+			   ch == '_';
+	}
 };
 
 #undef TOKEN_DEBUG
