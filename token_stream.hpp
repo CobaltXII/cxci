@@ -152,6 +152,11 @@ struct token_stream_t {
 			skip_comment();
 			return next();
 		}
+
+		// Check for identifiers.
+		if (chr_id_start(ch)) {
+			return read_identifier();
+		}
 	}
 };
 
