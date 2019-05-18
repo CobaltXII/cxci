@@ -43,3 +43,9 @@ std::string ansi_color_code[] = {
 	"\x1b[37;1m",
 	"\x1b[0m"
 };
+
+// Set the terminal color.
+std::string set_color(ansi_color_t color) {
+	std::cout << ansi_color_code[color];
+	return "";
+}
