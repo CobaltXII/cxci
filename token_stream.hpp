@@ -80,6 +80,28 @@ struct token_stream_t {
 			TOKEN_DEBUG
 		};
 	}
+
+	// Reads an escaped string/character literal. The start and end quotes are
+	// not included in the token text.
+	std::string read_escaped(int quote) {
+		bool escaped = false;
+		std::string str = "";
+		input.next();
+		while (!input.eof()) {
+			int ch = input.next();
+			if (escaped) {
+				str += ch;
+				escaped = false;
+			} else if (ch == '\\') {
+				escaped = true;
+			} else if (ch == quote) {
+				break;
+			} else {
+				str += ch;
+			}
+		}
+		return str;
+	}
 };
 
 #undef TOKEN_DEBUG
