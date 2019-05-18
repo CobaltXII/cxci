@@ -43,6 +43,16 @@ struct token_stream_t {
 	static bool chr_whitespace(int ch) {
 		return ch == ' ' || ch == '\t' || ch == '\n';
 	}
+
+	// Reads from the character stream until the predicate returns false or
+	// the end-of-file has been reached.
+	std::string read_while(bool (*predicate)(int)) {
+		std::string str = "";
+		while (!input.eof() && predicate(input.peek())) {
+			str += input.next();
+		}
+		return str;
+	}
 };
 
 #undef TOKEN_DEBUG
