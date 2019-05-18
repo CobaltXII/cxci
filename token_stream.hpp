@@ -38,6 +38,11 @@ struct token_stream_t {
 			   (ch >= '0' && ch <= '9') ||
 			   ch == '_';
 	}
+
+	// Checks is a character is whitespace.
+	static bool chr_whitespace(int ch) {
+		return ch == ' ' || ch == '\t' || ch == '\n';
+	}
 };
 
 #undef TOKEN_DEBUG
