@@ -161,6 +161,10 @@ struct token_stream_t {
 		else if (chr_digit(ch)) {
 			return read_lit_integer();
 		}
+		// Check for string literals.
+		else if (ch == '"') {
+			return read_lit_string();
+		}
 	}
 };
 
