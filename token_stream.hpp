@@ -169,6 +169,17 @@ struct token_stream_t {
 		else if (ch == '\'') {
 			return read_lit_character();
 		}
+
+		// Check for left parentheses.
+		else if (ch == '(') {
+			input.next();
+			return {tk_left_parenthesis, "(", TOKEN_DEBUG};
+		}
+		// Check for right parentheses.
+		else if (ch == ')') {
+			input.next();
+			return {tk_right_parenthesis, ")", TOKEN_DEBUG};
+		}
 	}
 };
 
