@@ -210,6 +210,22 @@ struct token_stream_t {
 			input.next();
 			return {tk_semicolon, ";", TOKEN_DEBUG};
 		}
+
+		// Check for the ambiguous plus (+) operator.
+		else if (ch == '+') {
+			input.next();
+			return {tk_plus, "+", TOKEN_DEBUG};
+		}
+		// Check for the ambiguous minus (-) operator.
+		else if (ch == '-') {
+			input.next();
+			return {tk_minus, "-", TOKEN_DEBUG};
+		}
+		// Check for the ambiguous asterisk (*) operator.
+		else if (ch == '*') {
+			input.next();
+			return {tk_asterisk, "*", TOKEN_DEBUG};
+		}
 	}
 };
 
