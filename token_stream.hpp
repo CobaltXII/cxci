@@ -200,6 +200,16 @@ struct token_stream_t {
 			input.next();
 			return {tk_right_brace, "}", TOKEN_DEBUG};
 		}
+		// Check for commas.
+		else if (ch == ',') {
+			input.next();
+			return {tk_comma, ",", TOKEN_DEBUG};
+		}
+		// Check for semicolons.
+		else if (ch == ';') {
+			input.next();
+			return {tk_semicolon, ";", TOKEN_DEBUG};
+		}
 	}
 };
 
