@@ -157,6 +157,10 @@ struct token_stream_t {
 		if (chr_id_start(ch)) {
 			return read_identifier();
 		}
+		// Check for integer literals.
+		else if (chr_digit(ch)) {
+			return read_lit_integer();
+		}
 	}
 };
 
