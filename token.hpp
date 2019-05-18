@@ -90,3 +90,22 @@ std::string token_type_str[] = {
 	"'-'",
 	"'*'"
 };
+
+// All token types as strings, padded.
+std::vector<std::string> make_token_type_str_pad() {
+	std::vector<std::string> token_type_str_pad;
+	long max_length = 0;
+	for (int i = 0; i < sizeof(token_type_str) / sizeof(token_type_str[0]); i++) {
+		if (token_type_str[i].length() > max_length) {
+			max_length = token_type_str[i].length();
+		}
+	}
+	for (int i = 0; i < sizeof(token_type_str) / sizeof(token_type_str[0]); i++) {
+		std::string padding(max_length - token_type_str[i].length(), ' ');
+		token_type_str_pad.push_back(token_type_str[i] + padding);
+	}
+	return token_type_str_pad;
+}
+
+// All token types as strings, padded.
+std::vector<std::string> token_type_str_pad = make_token_type_str_pad();
