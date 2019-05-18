@@ -13,6 +13,8 @@ enum binary_operator_t {
 	bi_logical_or,
 	bi_relational_equal,
 	bi_relational_non_equal,
+	bi_relational_greater_than,
+	bi_relational_lesser_than,
 	bi_error
 };
 
@@ -27,7 +29,9 @@ std::string binary_operator_str[] = {
 	"logical and",
 	"logical or",
 	"relational equal",
-	"relational non-equal"
+	"relational non-equal",
+	"relational greater-than",
+	"relational lesser-than"
 };
 
 // All unary operators.

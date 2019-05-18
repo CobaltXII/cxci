@@ -36,6 +36,8 @@ enum token_type_t {
 	tk_bi_logical_or,			// ||
 	tk_bi_relational_equal,		// ==
 	tk_bi_relational_non_equal,	// !=
+	tk_bi_relational_greater_than,	// >
+	tk_bi_relational_lesser_than,	// <
 	// Unary operators.
 	// tk_un_value_of				// *
 	// tk_un_arithmetic_positive	// +
@@ -82,6 +84,8 @@ std::string token_type_str[] = {
 	"'||'",
 	"'=='",
 	"'!='",
+	"'>'",
+	"'<'",
 	// Unary operators.
 	"'&'",
 	"'!'",

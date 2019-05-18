@@ -95,6 +95,7 @@ struct token_stream_t {
 				str += ch;
 				escaped = false;
 			} else if (ch == '\\') {
+				str += ch;
 				escaped = true;
 			} else if (ch == quote) {
 				break;
@@ -278,7 +279,7 @@ struct token_stream_t {
 				return {};
 			}
 		}
-		// Check for binary relational non-equals and unary logical NOT.
+		// Check for binary relational non-equal and unary logical NOT.
 		else if (ch == '!') {
 			input.next();
 			if (input.eof()) {
@@ -289,6 +290,16 @@ struct token_stream_t {
 			} else {
 				return {tk_un_logical_not, "!", TOKEN_DEBUG};
 			}
+		}
+		// Check for binary relational greater-than.
+		else if (ch == '>') {
+			input.next();
+			return {tk_bi_relational_greater_than, ">", TOKEN_DEBUG};
+		}
+		// Check for binary relational lesser-than.
+		else if (ch == '<') {
+			input.next();
+			return {tk_bi_relational_lesser_than, "<", TOKEN_DEBUG};
 		}
 
 		// Encountered an unexpected character.

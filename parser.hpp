@@ -229,6 +229,27 @@ struct parser_t {
 	expression_t* parse_relational_term() {
 		expression_t* node = parse_additive_term();
 		token_t token;
+		while (input.peek().type == tk_bi_relational_greater_than ||
+			   input.peek().type == tk_bi_relational_lesser_than)
+		{
+			token = input.peek();
+			binary_operator_t binary_operator = bi_error;
+			if (token.type == tk_bi_relational_greater_than) {
+				expect(tk_bi_relational_greater_than);
+				binary_operator = bi_relational_greater_than;
+			} else if (token.type == tk_bi_relational_lesser_than) {
+				expect(tk_bi_relational_lesser_than);
+				binary_operator = bi_relational_lesser_than;
+			}
+			node = new expression_t((binary_expression_t){node, parse_additive_term(), binary_operator});
+		}
+		return node;
+	}
+
+	// Parse an equality term.
+	expression_t* parse_equality_term() {
+		expression_t* node = parse_relational_term();
+		token_t token;
 		while (input.peek().type == tk_bi_relational_equal ||
 			   input.peek().type == tk_bi_relational_non_equal)
 		{
@@ -241,17 +262,17 @@ struct parser_t {
 				expect(tk_bi_relational_non_equal);
 				binary_operator = bi_relational_non_equal;
 			}
-			node = new expression_t((binary_expression_t){node, parse_additive_term(), binary_operator});
+			node = new expression_t((binary_expression_t){node, parse_relational_term(), binary_operator});
 		}
 		return node;
 	}
 
 	// Parse a logical AND term.
 	expression_t* parse_logical_and_term() {
-		expression_t* node = parse_relational_term();
+		expression_t* node = parse_equality_term();
 		while (input.peek().type == tk_bi_logical_and) {
 			expect(tk_bi_logical_and);
-			node = new expression_t((binary_expression_t){node, parse_relational_term(), bi_logical_and});
+			node = new expression_t((binary_expression_t){node, parse_equality_term(), bi_logical_and});
 		}
 		return node;
 	}
