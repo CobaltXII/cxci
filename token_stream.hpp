@@ -111,6 +111,15 @@ struct token_stream_t {
 			TOKEN_DEBUG
 		};
 	}
+
+	// Reads a character literal.
+	token_t read_lit_character() {
+		return {
+			tk_lit_character,
+			read_escaped('\''),
+			TOKEN_DEBUG
+		};
+	}
 };
 
 #undef TOKEN_DEBUG
