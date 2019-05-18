@@ -28,6 +28,16 @@ struct token_stream_t {
 			   (ch >= 'A' && ch <= 'Z') ||
 			   ch == '_';
 	}
+
+	// Checks if a character can be used anywhere in an identifier besides the
+	// first character. Any value x where chr_id_start(x) == true must also
+	// satisfy chr_id(x) == true.
+	static bool chr_id(int ch) {
+		return (ch >= 'a' && ch <= 'z') ||
+			   (ch >= 'A' && ch <= 'Z') ||
+			   (ch >= '0' && ch <= '9') ||
+			   ch == '_';
+	}
 };
 
 #undef TOKEN_DEBUG
