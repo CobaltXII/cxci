@@ -288,6 +288,10 @@ struct token_stream_t {
 				return {tk_un_logical_not, "!", TOKEN_DEBUG};
 			}
 		}
+
+		// Encountered an unexpected character.
+		input.die("Unexpected character");
+		return {};
 	}
 };
 
