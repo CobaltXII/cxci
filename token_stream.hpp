@@ -71,6 +71,15 @@ struct token_stream_t {
 			return {tk_identifier, str, TOKEN_DEBUG};
 		}
 	}
+
+	// Reads an integer literal.
+	token_t read_lit_integer() {
+		return {
+			tk_lit_integer,
+			read_while(chr_digit),
+			TOKEN_DEBUG
+		};
+	}
 };
 
 #undef TOKEN_DEBUG
