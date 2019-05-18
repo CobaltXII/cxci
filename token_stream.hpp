@@ -226,6 +226,68 @@ struct token_stream_t {
 			input.next();
 			return {tk_asterisk, "*", TOKEN_DEBUG};
 		}
+
+		// Check for binary division.
+		else if (ch == '/') {
+			input.next();
+			return {tk_bi_division, "/", TOKEN_DEBUG};
+		}
+		// Check for binary modulo.
+		else if (ch == '%') {
+			input.next();
+			return {tk_bi_modulo, "%", TOKEN_DEBUG};
+		}
+		// Check for binary assignment and relational equals.
+		else if (ch == '=') {
+			input.next();
+			if (input.eof()) {
+				return {tk_bi_assignment, "=", TOKEN_DEBUG};
+			} else if (input.peek() == '=') {
+				input.next();
+				return {tk_bi_relational_equal, "==", TOKEN_DEBUG};
+			} else {
+				return {tk_bi_assignment, "=", TOKEN_DEBUG};
+			}
+		}
+		// Check for binary logical AND and unary address-of.
+		else if (ch == '&') {
+			input.next();
+			if (input.eof()) {
+				return {tk_un_address_of, "&", TOKEN_DEBUG};
+			} else if (input.peek() == '&') {
+				input.next();
+				return {tk_bi_logical_and, "&&", TOKEN_DEBUG};
+			} else {
+				return {tk_un_address_of, "&", TOKEN_DEBUG};
+			}
+		}
+		// Check for binary logical OR.
+		else if (ch == '|') {
+			input.next();
+			if (input.eof()) {
+				input.die("Expected '|' after '|'");
+				return {};
+			}
+			int ch = input.next();
+			if (ch == '|') {
+				return {tk_bi_logical_or, "||", TOKEN_DEBUG};
+			} else {
+				input.die("Expected '|' after '|'");
+				return {};
+			}
+		}
+		// Check for binary relational non-equals and unary logical NOT.
+		else if (ch == '!') {
+			input.next();
+			if (input.eof()) {
+				return {tk_un_logical_not, "!", TOKEN_DEBUG};
+			} else if (input.peek() == '=') {
+				input.next();
+				return {tk_bi_relational_non_equal, "!=", TOKEN_DEBUG};
+			} else {
+				return {tk_un_logical_not, "!", TOKEN_DEBUG};
+			}
+		}
 	}
 };
 
