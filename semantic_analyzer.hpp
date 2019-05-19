@@ -411,6 +411,11 @@ struct semantic_analyzer_t {
 	// Validate a function.
 	bool validate_function(function_t function, symbol_table_t& global_symbols) {
 		symbol_table_t symbols(&global_symbols);
+		// The function is invalid if it's identifier is main and it's return
+		// type is not int.
+		if (function.identifier == "main" && function.type.pointer_depth != 0) {
+			die("'main' must return 'int'", function);
+		}
 		// Load the function parameters as symbols.
 		for (int i = 0; i < function.parameters.size(); i++) {
 			symbols.add_symbol(symbol_t(
