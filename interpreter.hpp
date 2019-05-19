@@ -18,4 +18,8 @@ struct interpreter_t {
 	interpreter_t(program_t program) {
 		this->program = program;
 	}
+	// Interpret the program, starting at function main.
+	value_t interpret() {
+		return interpret_function("main", {}, nullptr).raw;
+	}
 };
