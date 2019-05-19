@@ -18,6 +18,100 @@ struct interpreter_t {
 	interpreter_t(program_t program) {
 		this->program = program;
 	}
+
+	// Latch an identifier onto a variable.
+	variable_t latch_identifier(identifier_t identifier, variable_t variable) {
+		return {variable.type, identifier, variable.raw};
+	}
+
+	// Assign a value to an expression.
+	void assign_to(expression_t* expression, variable_t value, symbol_table_t& symbols) {
+		symbols.fetch(expression->identifier).raw = value.raw;
+	}
+
+	// Returns true if the values of both variables are equal.
+	bool variables_equal(variable_t a, variable_t b) {
+		return a.raw == b.raw;
+	}
+
+	// Returns true if a variable is true.
+	bool compare(variable_t variable) {
+		return variable.raw;
+	}
+
+	// Interpret an expression.
+	variable_t interpret_expression(expression_t* expression, symbol_table_t& symbols) {
+		if (expression->type == et_integer_literal) {
+			return {{0}, "", std::stol(expression->integer_literal)};
+		} else if (expression->type == et_string_literal) {
+			// TODO
+		} else if (expression->type == et_character_literal) {
+			return {{0}, "", expression->character_literal[0]};
+		} else if (expression->type == et_identifier) {
+			return symbols.fetch(expression->identifier);
+		} else if (expression->type == et_indexing) {
+			// TODO
+		} else if (expression->type == et_function_call) {
+			function_call_expression_t function_call = expression->function_call;
+			// Interpret all the function arguments.
+			std::vector<variable_t> arguments;
+			for (int i = 0; i < function_call.parameters.size(); i++) {
+				arguments.push_back(interpret_expression(function_call.parameters[i], symbols));
+			}
+			return interpret_function(function_call.function, arguments, symbols);
+		} else if (expression->type == et_binary) {
+			binary_expression_t binary = expression->binary;
+			// Interpret the operands.
+			if (binary.binary_operator == bi_assignment) {
+				assign_to(binary.left_operand, interpret_expression(binary.right_operand, symbols), symbols);
+				return interpret_expression(binary.left_operand, symbols);
+			}
+			variable_t left_operand = interpret_expression(binary.left_operand, symbols);
+			variable_t right_operand = interpret_expression(binary.right_operand, symbols);
+			if (binary.binary_operator == bi_addition) {
+				return {left_operand.type, "", left_operand.raw + right_operand.raw};
+			} else if (binary.binary_operator == bi_subtraction) {
+				return {left_operand.type, "", left_operand.raw - right_operand.raw};
+			} else if (binary.binary_operator == bi_multiplication) {
+				return {left_operand.type, "", left_operand.raw * right_operand.raw};
+			} else if (binary.binary_operator == bi_division) {
+				return {left_operand.type, "", left_operand.raw / right_operand.raw};
+			} else if (binary.binary_operator == bi_modulo) {
+				return {left_operand.type, "", left_operand.raw % right_operand.raw};
+			}
+			bool compare_left = compare(left_operand);
+			bool compare_right = compare(right_operand);
+			if (binary.binary_operator == bi_logical_and) {
+				return {{0}, "", long(compare_left && compare_right)};
+			} else if (binary.binary_operator == bi_logical_or) {
+				return {{0}, "", long(compare_left || compare_right)};
+			} else if (binary.binary_operator == bi_relational_equal) {
+				return {{0}, "", long(variables_equal(left_operand, right_operand))};
+			} else if (binary.binary_operator == bi_relational_non_equal) {
+				return {{0}, "", long(!variables_equal(left_operand, right_operand))};
+			} else if (binary.binary_operator == bi_relational_greater_than) {
+				return {{0}, "", long(left_operand.raw > right_operand.raw)};
+			} else if (binary.binary_operator == bi_relational_lesser_than) {
+				return {{0}, "", long(left_operand.raw < right_operand.raw)};
+			}
+		} else {
+			unary_expression_t unary = expression->unary;
+			if (unary.unary_operator == un_value_of) {
+				// TODO
+			} else if (unary.unary_operator == un_arithmetic_positive) {
+				variable_t operand = interpret_expression(unary.operand, symbols);
+				return {operand.type, "", long(+operand.raw)};
+			} else if (unary.unary_operator == un_arithmetic_negative) {
+				variable_t operand = interpret_expression(unary.operand, symbols);
+				return {operand.type, "", long(-operand.raw)};
+			} else if (unary.unary_operator == un_address_of) {
+				// TODO
+			} else {
+				return {{0}, "", long(!compare(interpret_expression(unary.operand, symbols)))};
+			}
+		}
+	}
+
 	// Interpret a statement.
 	bool interpret_statement(statement_t* statement, symbol_table_t& symbols) {
 		if (statement->type == st_compound) {
