@@ -1,3 +1,18 @@
+/*
+
+cxci - CobaltXII's C-like Interpreter
+
+SYNOPSIS
+	C-like interpreter written in C++11.
+
+LICENSE
+	This repository and it's contents are licensed under the MIT License.
+
+AUTHOR
+	Adam Sidat (CobaltXII)
+
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
