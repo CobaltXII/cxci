@@ -1,1 +1,1 @@
-clang++ cxci.cpp -o cxci.o -std=c++11 -Wall && ./cxci.o c/test.c
+clang++ cxci.cpp -o cxci -std=c++11 -Wall && ./cxci c/test.c
