@@ -207,7 +207,14 @@ struct semantic_analyzer_t {
 
 	// Validate an expression.
 	bool validate_expression(expression_t* expression, symbol_table_t symbols) {
-		if (expression->type == et_identifier) {
+		if (expression->type == et_character_literal) {
+			// Expand the character literal.
+			character_t expanded_literal = expand_literal(expression->character_literal, expression);
+			if (expanded_literal.size() != 1) {
+				die("multi-character character literal", expression);
+			}
+			expression->character_literal = expanded_literal;
+		} else if (expression->type == et_identifier) {
 			// Identifiers are invalid if they are undefined or reserved.
 			if (is_reserved(expression->identifier)) {
 				die("cannot refer to reserved identifier '" + expression->identifier + "'", expression);
@@ -286,7 +293,10 @@ struct semantic_analyzer_t {
 					   binary.binary_operator == bi_multiplication ||
 					   binary.binary_operator == bi_division ||
 					   binary.binary_operator == bi_modulo ||
-					   binary.binary_operator == bi_assignment)
+					   binary.binary_operator == bi_assignment ||
+
+					   binary.binary_operator == bi_relational_equal ||
+					   binary.binary_operator == bi_relational_non_equal)
 			{
 				// A binary expression of this type is invalid if the return
 				// type of the right-hand operand cannot be converted to the
@@ -297,13 +307,19 @@ struct semantic_analyzer_t {
 					die("invalid operands to binary expression ('" + prettyprint_type(left_type) + "' and '" + prettyprint_type(right_type) + "')", expression);
 					return false;
 				}
+				if (binary.binary_operator == bi_assignment) {
+					// A binary expression of this type is invalid if the
+					// left-hand operand is an rvalue.
+					if (is_rvalue(binary.left_operand, symbols)) {
+						die("expression is not assignable", binary.left_operand);
+						return false;
+					}
+				}
 			} else {
-				// bi_logical_and,
-				// bi_logical_or,
-				// bi_relational_equal,
-				// bi_relational_non_equal,
-				// bi_relational_greater_than,
-				// bi_relational_lesser_than,
+				// bi_logical_and
+				// bi_logical_or
+				// bi_relational_greater_than
+				// bi_relational_lesser_than
 				//
 				// A binary expression of this type is invalid if the return
 				// type of either operand cannot be converted to int.
