@@ -466,6 +466,10 @@ struct semantic_analyzer_t {
 				return false;
 			}
 		}
+		// The program is invalid if function main has not been defined.
+		if (!global_symbols.exists("main")) {
+			die("undefined symbol 'main'");
+		}
 		return true;
 	}
 };
