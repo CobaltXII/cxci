@@ -7,11 +7,6 @@
 // Indentation character.
 #define T ' '
 
-// Prettyprint a type.
-std::string prettyprint_type(type_t type) {
-	return "var" + std::string(type.pointer_depth, '*');
-}
-
 // Prettyprint a binary operator.
 std::string prettyprint_binary_operator(binary_operator_t binary_operator) {
 	return binary_operator_str[binary_operator];
