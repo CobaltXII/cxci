@@ -118,12 +118,15 @@ struct parser_t {
 	// Parse a literal.
 	expression_t* parse_literal() {
 		token_t peek = input.peek();
+		int lineno = peek.lineno;
+		int colno = peek.colno;
+		#define EXPRESSION_DEBUG lineno, colno - peek.text.size()
 		if (peek.type == tk_lit_integer) {
-			return new expression_t(expect(tk_lit_integer).text, "int");
+			return new expression_t(expect(tk_lit_integer).text, "int", EXPRESSION_DEBUG);
 		} else if (peek.type == tk_lit_string) {
-			return new expression_t(expect(tk_lit_string).text, "str");
+			return new expression_t(expect(tk_lit_string).text, "str", EXPRESSION_DEBUG);
 		} else if (peek.type == tk_lit_character) {
-			return new expression_t(expect(tk_lit_character).text, "chr");
+			return new expression_t(expect(tk_lit_character).text, "chr", EXPRESSION_DEBUG);
 		} else if (peek.type == tk_identifier) {
 			identifier_t identifier = parse_identifier();
 			peek = input.peek();
@@ -140,7 +143,7 @@ struct parser_t {
 					}
 				}
 				expect(tk_right_parenthesis);
-				return new expression_t({identifier, parameters});
+				return new expression_t({identifier, parameters}, EXPRESSION_DEBUG);
 			} else if (peek.type == tk_left_bracket) {
 				// TODO: Indexing expressions should be allowed to appear
 				// after parenthesis expressions and string literal
@@ -149,9 +152,9 @@ struct parser_t {
 				expect(tk_left_bracket);
 				expression_t* index = parse_expression();
 				expect(tk_right_bracket);
-				return new expression_t({identifier, index});
+				return new expression_t({identifier, index}, EXPRESSION_DEBUG);
 			} else {
-				return new expression_t(identifier, "id");
+				return new expression_t(identifier, "id", EXPRESSION_DEBUG);
 			}
 		} else if (peek.type == tk_left_parenthesis) {
 			expect(tk_left_parenthesis);
@@ -160,24 +163,27 @@ struct parser_t {
 			return subexpression;
 		} else if (peek.type == tk_asterisk) {
 			expect(tk_asterisk);
-			return new expression_t({parse_literal(), un_value_of});
+			return new expression_t({parse_literal(), un_value_of}, EXPRESSION_DEBUG);
 		} else if (peek.type == tk_plus) {
 			expect(tk_plus);
-			return new expression_t({parse_literal(), un_arithmetic_positive});
+			return new expression_t({parse_literal(), un_arithmetic_positive}, EXPRESSION_DEBUG);
 		} else if (peek.type == tk_minus) {
 			expect(tk_minus);
-			return new expression_t({parse_literal(), un_arithmetic_negative});
+			return new expression_t({parse_literal(), un_arithmetic_negative}, EXPRESSION_DEBUG);
 		} else if (peek.type == tk_un_address_of) {
 			expect(tk_un_address_of);
-			return new expression_t({parse_literal(), un_address_of});
+			return new expression_t({parse_literal(), un_address_of}, EXPRESSION_DEBUG);
 		} else if (peek.type == tk_un_logical_not) {
 			expect(tk_un_logical_not);
-			return new expression_t({parse_literal(), un_logical_not});
+			return new expression_t({parse_literal(), un_logical_not}, EXPRESSION_DEBUG);
 		} else {
 			die("expected literal");
 			return nullptr;
 		}
+		#undef EXPRESSION_DEBUG
 	}
+
+	#define EXPRESSION_DEBUG token.lineno, token.colno
 
 	// Parse a multiplicative term.
 	expression_t* parse_multiplicative_term() {
@@ -199,7 +205,7 @@ struct parser_t {
 				expect(tk_bi_modulo);
 				binary_operator = bi_modulo;
 			}
-			node = new expression_t((binary_expression_t){node, parse_multiplicative_term(), binary_operator});
+			node = new expression_t((binary_expression_t){node, parse_multiplicative_term(), binary_operator}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
@@ -220,7 +226,7 @@ struct parser_t {
 				expect(tk_minus);
 				binary_operator = bi_subtraction;
 			}
-			node = new expression_t((binary_expression_t){node, parse_multiplicative_term(), binary_operator});
+			node = new expression_t((binary_expression_t){node, parse_multiplicative_term(), binary_operator}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
@@ -241,7 +247,7 @@ struct parser_t {
 				expect(tk_bi_relational_lesser_than);
 				binary_operator = bi_relational_lesser_than;
 			}
-			node = new expression_t((binary_expression_t){node, parse_additive_term(), binary_operator});
+			node = new expression_t((binary_expression_t){node, parse_additive_term(), binary_operator}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
@@ -262,17 +268,21 @@ struct parser_t {
 				expect(tk_bi_relational_non_equal);
 				binary_operator = bi_relational_non_equal;
 			}
-			node = new expression_t((binary_expression_t){node, parse_relational_term(), binary_operator});
+			node = new expression_t((binary_expression_t){node, parse_relational_term(), binary_operator}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
+
+	#undef EXPRESSION_DEBUG
+	#define EXPRESSION_DEBUG peek.lineno, peek.colno
 
 	// Parse a logical AND term.
 	expression_t* parse_logical_and_term() {
 		expression_t* node = parse_equality_term();
 		while (input.peek().type == tk_bi_logical_and) {
+			token_t peek = input.peek();
 			expect(tk_bi_logical_and);
-			node = new expression_t((binary_expression_t){node, parse_equality_term(), bi_logical_and});
+			node = new expression_t((binary_expression_t){node, parse_equality_term(), bi_logical_and}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
@@ -281,8 +291,9 @@ struct parser_t {
 	expression_t* parse_logical_or_term() {
 		expression_t* node = parse_logical_and_term();
 		while (input.peek().type == tk_bi_logical_or) {
+			token_t peek = input.peek();
 			expect(tk_bi_logical_or);
-			node = new expression_t((binary_expression_t){node, parse_logical_and_term(), bi_logical_or});
+			node = new expression_t((binary_expression_t){node, parse_logical_and_term(), bi_logical_or}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
@@ -291,11 +302,14 @@ struct parser_t {
 	expression_t* parse_assignment_term() {
 		expression_t* node = parse_logical_or_term();
 		while (input.peek().type == tk_bi_assignment) {
+			token_t peek = input.peek();
 			expect(tk_bi_assignment);
-			node = new expression_t((binary_expression_t){node, parse_logical_or_term(), bi_assignment});
+			node = new expression_t((binary_expression_t){node, parse_logical_or_term(), bi_assignment}, EXPRESSION_DEBUG);
 		}
 		return node;
 	}
+
+	#undef EXPRESSION_DEBUG
 
 	// Parse an expression.
 	expression_t* parse_expression() {

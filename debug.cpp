@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	program_t program = parser_t(argv[1], file_content).parse();
 
 	// Validate the program.
-	semantic_analyzer_t semantic_analyzer;
+	semantic_analyzer_t semantic_analyzer(argv[1], file_content);
 	bool valid = semantic_analyzer.validate(program);
 
 	return !valid;

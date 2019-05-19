@@ -1,14 +1,51 @@
 #pragma once
 #include <string>
+#include <sstream>
 #include <iostream>
 
+#include "ansi_colors.hpp"
 #include "symbol_table.hpp"
 
 // A semantic analyzer.
 struct semantic_analyzer_t {
+	std::string filename;
+	std::string buffer;
+
+	// Default constructor.
+	semantic_analyzer_t(std::string filename, std::string buffer) {
+		this->filename = filename;
+		this->buffer = buffer;
+	}
+
 	// Print an error message, then exit.
 	void die(std::string error) {
 		std::cerr << error << std::endl;
+		exit(3);
+	}
+
+	// Print an error message, then exit.
+	void die(std::string error, expression_t* expression) {
+		std::cerr << set_color(bold_white) << filename << ":";
+		std::cerr << expression->lineno + 1 << ":" << expression->colno + 1 << ": ";
+		std::cerr << set_color(bold_red) << "error: ";
+		std::cerr << set_color(bold_white) << error << set_color(reset) << std::endl;
+		// Print the line where the error occurred.
+		std::stringstream in(buffer);
+		std::string line;
+		for (int i = 0; i < expression->lineno; i++) {
+			std::getline(in, line);
+		}
+		std::getline(in, line);
+		std::cerr << line << std::endl;
+		// Print an indicator pointing to the column where the error occurred.
+		for (int i = 0; i < expression->colno + 1; i++) {
+			if (line[i] == '\t') {
+				std::cerr << '\t';
+			} else {
+				std::cerr << ' ';
+			}
+		}
+		std::cerr << set_color(bold_green) << '^' << set_color(reset) << std::endl;
 		exit(3);
 	}
 
@@ -34,7 +71,7 @@ struct semantic_analyzer_t {
 			if (symbols.exists(expression->identifier)) {
 				return symbols.fetch(expression->identifier).type;
 			} else {
-				die("unknown identifier '" + expression->identifier + "'");
+				die("unknown identifier '" + expression->identifier + "'", expression);
 				return {0};
 			}
 		} else if (expression->type == et_indexing) {
@@ -45,7 +82,7 @@ struct semantic_analyzer_t {
 				array_type = symbols.fetch(expression->indexing.array).type;
 				return {array_type.pointer_depth - 1};
 			} else {
-				die("unknown identifier '" + expression->indexing.array + "'");
+				die("unknown identifier '" + expression->indexing.array + "'", expression);
 				return {0};
 			}
 		} else if (expression->type == et_function_call) {
@@ -55,7 +92,7 @@ struct semantic_analyzer_t {
 			if (symbols.exists(function_call.function)) {
 				return symbols.fetch(function_call.function).type;
 			} else {
-				die("unknown identifier '" + function_call.function + "'");
+				die("unknown identifier '" + function_call.function + "'", expression);
 				return {0};
 			}
 		} else if (expression->type == et_binary) {
@@ -114,11 +151,11 @@ struct semantic_analyzer_t {
 		if (expression->type == et_identifier) {
 			// Identifiers are invalid if they are undefined or reserved.
 			if (is_reserved(expression->identifier)) {
-				die("cannot refer to reserved identifier '" + expression->identifier + "'");
+				die("cannot refer to reserved identifier '" + expression->identifier + "'", expression);
 				return false;
 			}
 			else if (!symbols.exists(expression->identifier)) {
-				die("unknown identifier '" + expression->identifier + "'");
+				die("unknown identifier '" + expression->identifier + "'", expression);
 				return false;
 			}
 		} else if (expression->type == et_indexing) {
@@ -126,7 +163,7 @@ struct semantic_analyzer_t {
 			// An indexing expression is invalid if the array is invalid or
 			// the index is invalid.
 			if (!symbols.exists(indexing.array)) {
-				die("unknown identifier '" + indexing.array + "'");
+				die("unknown identifier '" + indexing.array + "'", expression);
 				return false;
 			} else if (!validate_expression(indexing.index, symbols)) {
 				return false;
@@ -135,7 +172,7 @@ struct semantic_analyzer_t {
 			// return type cannot be converted to int.
 			type_t index_type = expression_type(indexing.index, symbols);
 			if (!can_convert(index_type, {0})) {
-				die("cannot convert index expression of type '" + prettyprint_type(index_type) + "' to 'int'");
+				die("cannot convert index expression of type '" + prettyprint_type(index_type) + "' to 'int'", expression);
 				return false;
 			}
 		} else if (expression->type == et_function_call) {
@@ -143,21 +180,21 @@ struct semantic_analyzer_t {
 			// A function call expression is invalid if there is no symbol
 			// under the function call's function identifier.
 			if (!symbols.exists(function_call.function)) {
-				die("unknown identifier '" + function_call.function + "'");
+				die("unknown identifier '" + function_call.function + "'", expression);
 				return false;
 			}
 			// A function call expression is invalid if there is a
 			// non-function symbol under the function call's function
 			// identifier.
 			if (!symbols.fetch(function_call.function).is_function) {
-				die("called variable '" + function_call.function + "' is not a function");
+				die("called variable '" + function_call.function + "' is not a function", expression);
 				return false;
 			}
 			// A function call expression is invalid if it's parameter count
 			// is not equal to the parameter count of it's registered symbol.
 			symbol_t function = symbols.fetch(function_call.function);
 			if (function.parameters.size() != function_call.parameters.size()) {
-				die("no matching function call to '" + function_call.function + "'");
+				die("no matching function call to '" + function_call.function + "'", expression);
 				return false;
 			}
 			// A function call expression is invalid if any of it's parameter
@@ -167,7 +204,7 @@ struct semantic_analyzer_t {
 				type_t parameter_type = expression_type(function_call.parameters[i], symbols);
 				type_t expected_type = function.parameters[i].type;
 				if (!can_convert(parameter_type, expected_type)) {
-					die("cannot convert parameter expression of type '" + prettyprint_type(parameter_type) + "' to '" + prettyprint_type(expected_type) + "'");
+					die("cannot convert parameter expression of type '" + prettyprint_type(parameter_type) + "' to '" + prettyprint_type(expected_type) + "'", function_call.parameters[i]);
 					return false;
 				}
 			}
@@ -198,7 +235,7 @@ struct semantic_analyzer_t {
 				type_t left_type = expression_type(binary.left_operand, symbols);
 				type_t right_type = expression_type(binary.right_operand, symbols);
 				if (!can_convert(left_type, right_type)) {
-					die("invalid operands to binary expression ('" + prettyprint_type(left_type) + "' and '" + prettyprint_type(right_type) + "')");
+					die("invalid operands to binary expression ('" + prettyprint_type(left_type) + "' and '" + prettyprint_type(right_type) + "')", expression);
 					return false;
 				}
 			} else {
@@ -216,7 +253,7 @@ struct semantic_analyzer_t {
 				if (!can_convert(left_type, {0}) ||
 					!can_convert(right_type, {0}))
 				{
-					die("invalid operands to binary expression ('" + prettyprint_type(left_type) + "' and '" + prettyprint_type(right_type) + "')");
+					die("invalid operands to binary expression ('" + prettyprint_type(left_type) + "' and '" + prettyprint_type(right_type) + "')", expression);
 					return false;
 				}
 			}
@@ -231,7 +268,7 @@ struct semantic_analyzer_t {
 				// pointer depth is less than 1.
 				type_t operand_type = expression_type(unary.operand, symbols);
 				if (operand_type.pointer_depth < 1) {
-					die("cannot dereference expression of type '" + prettyprint_type(operand_type) + "'");
+					die("cannot dereference expression of type '" + prettyprint_type(operand_type) + "'", expression);
 					return false;
 				}
 			} else if (unary.unary_operator == un_arithmetic_positive ||
@@ -242,7 +279,7 @@ struct semantic_analyzer_t {
 				// cannot be converted to type int.
 				type_t operand_type = expression_type(unary.operand, symbols);
 				if (!can_convert(operand_type, {0})) {
-					die("cannot convert expression of type '" + prettyprint_type(operand_type) + "' to 'int'");
+					die("cannot convert expression of type '" + prettyprint_type(operand_type) + "' to 'int'", expression);
 					return false;
 				}
 			} else {

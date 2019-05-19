@@ -47,6 +47,9 @@ struct unary_expression_t {
 struct expression_t {
 	expression_type_t			type;
 
+	long						lineno;
+	long						colno;
+
 	integer_t					integer_literal;
 	string_t					string_literal;
 	character_t					character_literal;
@@ -56,7 +59,7 @@ struct expression_t {
 	binary_expression_t			binary;
 	unary_expression_t			unary;
 
-	expression_t(std::string literal, std::string disambiguation) {
+	expression_t(std::string literal, std::string disambiguation, long lineno, long colno) {
 		if (disambiguation == "int") {
 			type = et_integer_literal;
 			integer_literal = literal;
@@ -70,25 +73,35 @@ struct expression_t {
 			type = et_identifier;
 			identifier = literal;
 		}
+		this->lineno = lineno;
+		this->colno = colno;
 	}
 
-	expression_t(indexing_expression_t expr) {
+	expression_t(indexing_expression_t expr, long lineno, long colno) {
 		type = et_indexing;
 		indexing = expr;
+		this->lineno = lineno;
+		this->colno = colno;
 	}
 
-	expression_t(function_call_expression_t expr) {
+	expression_t(function_call_expression_t expr, long lineno, long colno) {
 		type = et_function_call;
 		function_call = expr;
+		this->lineno = lineno;
+		this->colno = colno;
 	}
 
-	expression_t(binary_expression_t expr) {
+	expression_t(binary_expression_t expr, long lineno, long colno) {
 		type = et_binary;
 		binary = expr;
+		this->lineno = lineno;
+		this->colno = colno;
 	}
 
-	expression_t(unary_expression_t expr) {
+	expression_t(unary_expression_t expr, long lineno, long colno) {
 		type = et_unary;
 		unary = expr;
+		this->lineno = lineno;
+		this->colno = colno;
 	}
 };
