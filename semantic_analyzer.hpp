@@ -422,11 +422,20 @@ struct semantic_analyzer_t {
 		// identifier __return__.
 		symbols.add_symbol(symbol_t(function.type, "__return__"));
 		// Iterate through each statement in the function body.
+		bool had_return_stmt = false;
 		for (int i = 0; i < function.body.size(); i++) {
 			statement_t* statement = function.body[i];
 			if (!validate_statement(statement, symbols)) {
 				return false;
 			}
+			if (statement->type == st_return) {
+				had_return_stmt = true;
+			}
+		}
+		// The function is invalid if it has no return statement.
+		if (!had_return_stmt) {
+			die("function '" + function.identifier + "' has no return statement", function);
+			return false;
 		}
 		return true;
 	}
