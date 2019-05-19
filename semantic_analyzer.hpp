@@ -444,13 +444,20 @@ struct semantic_analyzer_t {
 	bool validate(program_t program) {
 		symbol_table_t global_symbols;
 		for (int i = 0; i < program.size(); i++) {
+			function_t function = program[i];
+			// The function is invalid if a function already exists under the
+			// same identifier.
+			if (global_symbols.exists(function.identifier)) {
+				die("redefinition of function '" + function.identifier + "'", function);
+				return false;
+			}
 			// Add the function to the symbol table.
 			global_symbols.add_symbol(symbol_t(
-				program[i].type,
-				program[i].identifier,
-				program[i].parameters
+				function.type,
+				function.identifier,
+				function.parameters
 			));
-			if (!validate_function(program[i], global_symbols)) {
+			if (!validate_function(function, global_symbols)) {
 				return false;
 			}
 		}
