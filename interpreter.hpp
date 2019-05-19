@@ -190,7 +190,7 @@ struct interpreter_t {
 		// Load the parameters into a new symbol table.
 		symbol_table_t symbols(&parent_symbols);
 		for (int i = 0; i < parameters.size(); i++) {
-			symbols.add_symbol(parameters[i]);
+			symbols.add_symbol(latch_identifier(function.parameters[i].identifier, parameters[i]));
 		}
 		// Interpret all of the body statements.
 		for (int i = 0; i < function.body.size(); i++) {
