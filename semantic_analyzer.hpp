@@ -448,6 +448,10 @@ struct semantic_analyzer_t {
 	// Validate a program.
 	bool validate(program_t program) {
 		symbol_table_t global_symbols;
+		// Define standard function int putchar(int).
+		global_symbols.add_symbol(symbol_t(
+			{0}, "putchar", {{{0}, ""}}
+		));
 		for (int i = 0; i < program.size(); i++) {
 			function_t function = program[i];
 			// The function is invalid if a function already exists under the
