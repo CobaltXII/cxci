@@ -1,4 +1,21 @@
+int putint(int n) {
+	if (n < 0) {
+		putchar('-');
+		n = -n;
+	}
+	if (n / 10)
+		putint(n / 10);
+	putchar(n % 10 + '0');
+	return 0;
+}
+
+int newline() {
+	return putchar('\n');
+}
+
 int main() {
+	putint(1024);
+	newline();
 	int condition = 0;
 	// TODO: implement else and else if
 	if (condition == 1) {
@@ -7,7 +24,7 @@ int main() {
 		putchar('i');
 		putchar('l');
 		putchar('!');
-		putchar('\n');
+		newline();
 		return -1;
 	}
 	int alphabet = 'a';
@@ -21,7 +38,7 @@ int main() {
 		alphabet = alphabet + 1;
 		uppercase = uppercase + 1;
 	}
-	putchar('\n');
+	newline();
 	if ('\n' != 1 + 2 - 3 * 4 / 5 % 6 && 7 || 8 == 9 != 10) {
 		// TODO: make int* functional
 		putchar('H');
@@ -37,7 +54,7 @@ int main() {
 		putchar('l');
 		putchar('d');
 		putchar('!');
-		putchar('\n');
+		newline();
 	}
 	return 0;
 }
