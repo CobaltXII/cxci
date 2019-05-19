@@ -24,21 +24,21 @@ struct semantic_analyzer_t {
 	}
 
 	// Print an error message, then exit.
-	void die(std::string error, expression_t* expression) {
+	void die(std::string error, long lineno, long colno) {
 		std::cerr << set_color(bold_white) << filename << ":";
-		std::cerr << expression->lineno + 1 << ":" << expression->colno + 1 << ": ";
+		std::cerr << lineno + 1 << ":" << colno + 1 << ": ";
 		std::cerr << set_color(bold_red) << "error: ";
 		std::cerr << set_color(bold_white) << error << set_color(reset) << std::endl;
 		// Print the line where the error occurred.
 		std::stringstream in(buffer);
 		std::string line;
-		for (int i = 0; i < expression->lineno; i++) {
+		for (int i = 0; i < lineno; i++) {
 			std::getline(in, line);
 		}
 		std::getline(in, line);
 		std::cerr << line << std::endl;
 		// Print an indicator pointing to the column where the error occurred.
-		for (int i = 0; i < expression->colno + 1; i++) {
+		for (int i = 0; i < colno + 1; i++) {
 			if (line[i] == '\t') {
 				std::cerr << '\t';
 			} else {
@@ -47,6 +47,16 @@ struct semantic_analyzer_t {
 		}
 		std::cerr << set_color(bold_green) << '^' << set_color(reset) << std::endl;
 		exit(3);
+	}
+
+	// Print an error message, then exit.
+	void die(std::string error, expression_t* expression) {
+		die(error, expression->lineno, expression->colno);
+	}
+
+	// Print an error message, then exit.
+	void die(std::string error, function_t function) {
+		die(error, function.lineno, function.colno);
 	}
 
 	// Checks if an identifier is reserved.
