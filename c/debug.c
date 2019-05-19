@@ -1,3 +1,8 @@
+// Temporary standard library.
+int* __cxci_malloc(int len) {return 0;}
+int __cxci_getc() {return 0;}
+int __cxci_putc(int ch) {return 0;}
+
 // Returns the length of a string.
 int strlen(int* str) {
 	int len = 0;
@@ -5,6 +10,7 @@ int strlen(int* str) {
 		str = str + 1;
 		len = len + 1;
 	}
+	return len;
 }
 
 // Concatenates two strings.
@@ -13,7 +19,7 @@ int* strcat(int* a, int* b) {
 	int len2 = strlen(b);
 	int* buffer = __cxci_malloc(len1 + len2);
 	if (!buffer) {
-		return NULL;
+		return 0;
 	}
 	int i = 0;
 	while (i < len1) {
@@ -30,7 +36,7 @@ int* strcat(int* a, int* b) {
 int* gets() {
 	int* buffer = __cxci_malloc(1024);
 	if (!buffer) {
-		return NULL;
+		return 0;
 	}
 	int i = 0;
 	int ch = 0;
