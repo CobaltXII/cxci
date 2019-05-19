@@ -59,6 +59,50 @@ struct semantic_analyzer_t {
 		die(error, function.lineno, function.colno);
 	}
 
+	// Expands a string or character literal.
+	std::string expand_literal(std::string literal, expression_t* expression) {
+		std::string expanded;
+		bool escaped = false;
+		for (int i = 0; i < literal.size(); i++) {
+			if (literal[i] == '\\') {
+				escaped = true;
+			} else {
+				if (escaped) {
+					if (literal[i] == 'a') {
+						expanded += '\a';
+					} else if (literal[i] == 'b') {
+						expanded += '\b';
+					} else if (literal[i] == 'f') {
+						expanded += '\f';
+					} else if (literal[i] == 'n') {
+						expanded += '\n';
+					} else if (literal[i] == 'r') {
+						expanded += '\r';
+					} else if (literal[i] == 't') {
+						expanded += '\t';
+					} else if (literal[i] == 'v') {
+						expanded += '\v';
+					} else if (literal[i] == '\\') {
+						expanded += '\\';
+					} else if (literal[i] == '\'') {
+						expanded += '\'';
+					} else if (literal[i] == '"') {
+						expanded += '"';
+					} else {
+						die("unknown escape sequence", expression->lineno, expression->colno + i - 2);
+					}
+					escaped = false;
+					// TODO: null character literal
+					// TODO: octal character literal
+					// TODO: hexadecimal character literal
+				} else {
+					expanded += literal[i];
+				}
+			}
+		}
+		return expanded;
+	}
+
 	// Checks if an identifier is reserved.
 	bool is_reserved(identifier_t identifier) {
 		return identifier == "__return__";
