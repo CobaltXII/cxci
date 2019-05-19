@@ -64,7 +64,7 @@ struct symbol_table_t {
 	}
 
 	// Fetch the symbol under the specified identifier.
-	symbol_t fetch(identifier_t identifier) {
+	symbol_t& fetch(identifier_t identifier) {
 		// Search the current scope for the specified identifier.
 		for (int i = 0; i < symbols.size(); i++) {
 			if (symbols[i].identifier == identifier) {
