@@ -124,9 +124,9 @@ struct parser_t {
 		if (peek.type == tk_lit_integer) {
 			return new expression_t(expect(tk_lit_integer).text, "int", EXPRESSION_DEBUG);
 		} else if (peek.type == tk_lit_string) {
-			return new expression_t(expect(tk_lit_string).text, "str", EXPRESSION_DEBUG);
+			return new expression_t(expect(tk_lit_string).text, "str", EXPRESSION_DEBUG - 2);
 		} else if (peek.type == tk_lit_character) {
-			return new expression_t(expect(tk_lit_character).text, "chr", EXPRESSION_DEBUG);
+			return new expression_t(expect(tk_lit_character).text, "chr", EXPRESSION_DEBUG - 2);
 		} else if (peek.type == tk_identifier) {
 			identifier_t identifier = parse_identifier();
 			peek = input.peek();
