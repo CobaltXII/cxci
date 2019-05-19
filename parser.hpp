@@ -120,7 +120,7 @@ struct parser_t {
 		token_t peek = input.peek();
 		int lineno = peek.lineno;
 		int colno = peek.colno;
-		#define EXPRESSION_DEBUG lineno, colno - peek.text.size()
+		#define EXPRESSION_DEBUG lineno, colno - peek.text.length() - 1
 		if (peek.type == tk_lit_integer) {
 			return new expression_t(expect(tk_lit_integer).text, "int", EXPRESSION_DEBUG);
 		} else if (peek.type == tk_lit_string) {
@@ -388,11 +388,14 @@ struct parser_t {
 	std::vector<function_t> parse() {
 		std::vector<function_t> functions;
 		while (!input.eof()) {
+			token_t peek = input.peek();
 			functions.push_back({
 				parse_type(),
 				parse_identifier(),
 				parse_parameters(),
-				parse_statements()
+				parse_statements(),
+				long(peek.lineno),
+				long(peek.colno - peek.text.length() - 1)
 			});
 		}
 		return functions;
