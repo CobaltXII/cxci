@@ -324,7 +324,7 @@ struct semantic_analyzer_t {
 			// converted to int.
 			type_t condition_type = expression_type(stmt.condition, symbols);
 			if (!can_convert(condition_type, {0})) {
-				die("cannot convert expression of type '" + prettyprint_type(condition_type) + "' to 'int'");
+				die("cannot convert expression of type '" + prettyprint_type(condition_type) + "' to 'int'", stmt.condition);
 				return false;
 			}
 			// A conditional statement is invalid if it's body statement is
@@ -343,7 +343,7 @@ struct semantic_analyzer_t {
 			// converted to int.
 			type_t condition_type = expression_type(stmt.condition, symbols);
 			if (!can_convert(condition_type, {0})) {
-				die("cannot convert expression of type '" + prettyprint_type(condition_type) + "' to 'int'");
+				die("cannot convert expression of type '" + prettyprint_type(condition_type) + "' to 'int'", stmt.condition);
 				return false;
 			}
 			// A while statement is invalid if it's body statement is invalid.
@@ -358,7 +358,7 @@ struct semantic_analyzer_t {
 			type_t value_type = expression_type(stmt.value, symbols);
 			type_t return_type = symbols.fetch("__return__").type;
 			if (!can_convert(value_type, return_type)) {
-				die("no conversion from value of type '" + prettyprint_type(value_type) + "' to function return type '" + prettyprint_type(return_type) + "'");
+				die("no conversion from value of type '" + prettyprint_type(value_type) + "' to function return type '" + prettyprint_type(return_type) + "'", stmt.value);
 			}
 			// A return statement is invalid if it's value is invalid.
 			if (!validate_expression(stmt.value, symbols)) {
@@ -384,7 +384,7 @@ struct semantic_analyzer_t {
 			if (stmt.initializer) {
 				type_t initializer_type = expression_type(stmt.initializer, symbols);
 				if (!can_convert(initializer_type, stmt.type)) {
-					die("no conversion from initializer value of type '" + prettyprint_type(initializer_type) + "' to variable type '" + prettyprint_type(stmt.type) + "'");
+					die("no conversion from initializer value of type '" + prettyprint_type(initializer_type) + "' to variable type '" + prettyprint_type(stmt.type) + "'", stmt.initializer);
 					return false;
 				}
 			}
