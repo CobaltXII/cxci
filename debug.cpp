@@ -4,7 +4,7 @@
 
 #include "parser.hpp"
 #include "semantic_analyzer.hpp"
-#include "prettyprint.hpp"
+#include "interpreter.hpp"
 
 // Entry point.
 int main(int argc, char** argv) {
@@ -30,13 +30,9 @@ int main(int argc, char** argv) {
 
 	// Validate the program.
 	semantic_analyzer_t semantic_analyzer(argv[1], file_content);
-	bool valid = semantic_analyzer.validate(program);
+	semantic_analyzer.validate(program);
 
-	return !valid;
-
-	for (int i = 0; i < program.size(); i++) {
-		prettyprint_function(program[i]);
-	}
-
-	return 0;
+	// Interpret the program.
+	interpreter_t interpreter(program);
+	return interpreter.interpret();
 }
