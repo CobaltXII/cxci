@@ -64,6 +64,11 @@ struct semantic_analyzer_t {
 		return identifier == "__return__";
 	}
 
+	// Check if an expression is an rvalue.
+	bool is_rvalue(expression_t* expression, symbol_table_t symbols) {
+		return expression->type != et_identifier;
+	}
+
 	// Get the return type of an expression.
 	type_t expression_type(expression_t* expression, symbol_table_t symbols) {
 		if (expression->type == et_integer_literal) {
@@ -295,7 +300,12 @@ struct semantic_analyzer_t {
 			} else {
 				// un_address_of
 				//
-				// TODO: you cannot take the address of a literal.
+				// A unary expression of this type is invalid if the operand
+				// is an rvalue.
+				if (is_rvalue(unary.operand, symbols)) {
+					die("cannot take the address of an rvalue of type '" + prettyprint_type(expression_type(unary.operand, symbols)) + "'", expression);
+					return false;
+				}
 			}
 		}
 		return true;
