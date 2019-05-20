@@ -47,7 +47,12 @@ int main(int argc, char** argv) {
 	semantic_analyzer_t semantic_analyzer(argv[1], file_content);
 	semantic_analyzer.validate(program);
 
-	// Interpret the program.
+	// Create an interpreter.
 	interpreter_t interpreter(program);
+
+	// Pack all the arrays in the program into memory.
+	interpreter.pack_arrays();
+
+	// Interpret the program.
 	return interpreter.interpret();
 }

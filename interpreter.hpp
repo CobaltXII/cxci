@@ -212,4 +212,79 @@ struct interpreter_t {
 	value_t interpret() {
 		return interpret_function("main", {}, nullptr).raw;
 	}
+
+	// Pack all the arrays in an expression, and translate array references
+	// into pointers to the packed location.
+	void pack_expression(expression_t*& expression) {
+		if (expression->type == et_string_literal) {
+			// Pack the string literal.
+			long ptr = memory.data_offset;
+			for (int i = 0; i < expression->string_literal.size(); i++) {
+				// TODO: bounds checking
+				memory.cells[memory.data_offset++] = expression->string_literal[i];
+			}
+			// Add a terminator.
+			memory.cells[memory.data_offset++] = 0;
+			// Convert this expression into a pointer to the packed string.
+			long lineno = expression->lineno;
+			long colno = expression->colno;
+			delete expression;
+			expression = new expression_t(std::to_string(ptr), "int", lineno, colno);
+		} else if (expression->type == et_function_call) {
+			function_call_expression_t function_call = expression->function_call;
+			for (int i = 0; i < function_call.parameters.size(); i++) {
+				pack_expression(function_call.parameters[i]);
+			}
+		} else if (expression->type == et_binary) {
+			binary_expression_t binary = expression->binary;
+			pack_expression(binary.left_operand);
+			pack_expression(binary.right_operand);
+		} else if (expression->type == et_unary) {
+			unary_expression_t unary = expression->unary;
+			pack_expression(unary.operand);
+		}
+	}
+
+	// Pack all the arrays in a statement.
+	void pack_statement(statement_t*& statement) {
+		if (statement->type == st_compound) {
+			compound_statement_t stmt = statement->compound_stmt;
+			for (int i = 0; i < stmt.statements.size(); i++) {
+				pack_statement(stmt.statements[i]);
+			}
+		} else if (statement->type == st_conditional) {
+			conditional_statement_t stmt = statement->conditional_stmt;
+			pack_expression(stmt.condition);
+			pack_statement(stmt.body);
+		} else if (statement->type == st_while) {
+			while_statement_t stmt = statement->while_stmt;
+			pack_expression(stmt.condition);
+			pack_statement(stmt.body);
+		} else if (statement->type == st_return) {
+			return_statement_t stmt = statement->return_stmt;
+			pack_expression(stmt.value);
+		} else if (statement->type == st_variable_declaration) {
+			variable_declaration_statement_t stmt = statement->variable_declaration_stmt;
+			if (stmt.initializer) {
+				pack_expression(stmt.initializer);
+			}
+		} else if (statement->type == st_expression) {
+			expression_statement_t stmt = statement->expression_stmt;
+			pack_expression(stmt.expression);
+		}
+	}
+
+	// Pack all the arrays in a function.
+	void pack_function(function_t& function) {
+		for (int i = 0; i < function.body.size(); i++) {
+			pack_statement(function.body[i]);
+		}
+	}
+
+	// Pack all the arrays in the program.
+	void pack_arrays() {
+		for (int i = 0; i < program.size(); i++) {
+			pack_function(program[i]);
+		}
+	}
 };
