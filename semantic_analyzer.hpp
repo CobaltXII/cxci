@@ -110,7 +110,11 @@ struct semantic_analyzer_t {
 
 	// Check if an expression is an rvalue.
 	bool is_rvalue(expression_t* expression, symbol_table_t symbols) {
-		return expression->type != et_identifier;
+		if (expression->type == et_unary) {
+			return expression->unary.unary_operator != un_value_of;
+		} else {
+			return expression->type != et_identifier;
+		}
 	}
 
 	// Get the return type of an expression.
