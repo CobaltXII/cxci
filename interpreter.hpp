@@ -98,15 +98,13 @@ struct interpreter_t {
 			unary_expression_t unary = expression->unary;
 			if (unary.unary_operator == un_value_of) {
 				variable_t operand = interpret_expression(unary.operand, symbols);
-				return {{operand.type.pointer_depth - 1}, "", memory.cells[operand.raw]};
+				return {{operand.type.pointer_depth - 1}, "", memory.cells[operand.raw], operand.raw};
 			} else if (unary.unary_operator == un_arithmetic_positive) {
 				variable_t operand = interpret_expression(unary.operand, symbols);
 				return {operand.type, "", value_t(+operand.raw)};
 			} else if (unary.unary_operator == un_arithmetic_negative) {
 				variable_t operand = interpret_expression(unary.operand, symbols);
 				return {operand.type, "", value_t(-operand.raw)};
-			} else if (unary.unary_operator == un_address_of) {
-				// TODO
 			} else {
 				return {{0}, "", value_t(!compare(interpret_expression(unary.operand, symbols)))};
 			}
@@ -220,7 +218,6 @@ struct interpreter_t {
 			// Pack the string literal.
 			long ptr = memory.data_offset;
 			for (int i = 0; i < expression->string_literal.size(); i++) {
-				// TODO: bounds checking
 				memory.cells[memory.data_offset++] = expression->string_literal[i];
 			}
 			// Add a terminator.
