@@ -369,12 +369,9 @@ struct semantic_analyzer_t {
 			} else {
 				// un_address_of
 				//
-				// A unary expression of this type is invalid if the operand
-				// is an rvalue.
-				if (is_rvalue(unary.operand, symbols)) {
-					die("cannot take the address of an rvalue of type '" + prettyprint_type(expression_type(unary.operand, symbols)) + "'", expression);
-					return false;
-				}
+				// Not implemented.
+				die("address-of operator not implemented", expression);
+				return false;
 			}
 		}
 		return true;
