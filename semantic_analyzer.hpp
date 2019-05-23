@@ -113,7 +113,8 @@ struct semantic_analyzer_t {
 		if (expression->type == et_unary) {
 			return expression->unary.unary_operator != un_value_of;
 		} else {
-			return expression->type != et_identifier;
+			return expression->type != et_identifier &&
+				   expression->type != et_indexing;
 		}
 	}
 
