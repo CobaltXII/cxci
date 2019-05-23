@@ -104,6 +104,9 @@ struct interpreter_t {
 				return {{0}, "", value_t(left_operand.raw > right_operand.raw)};
 			} else if (binary.binary_operator == bi_relational_lesser_than) {
 				return {{0}, "", value_t(left_operand.raw < right_operand.raw)};
+			} else {
+				// For the compiler warnings:
+				return {};
 			}
 		} else {
 			unary_expression_t unary = expression->unary;
