@@ -131,9 +131,6 @@ struct parser_t {
 			identifier_t identifier = parse_identifier();
 			peek = input.peek();
 			if (peek.type == tk_left_parenthesis) {
-				// TODO: Function calls should be allowed to appear after
-				// parenthesis expressions.
-				// Function call expression.
 				expect(tk_left_parenthesis);
 				std::vector<expression_t*> parameters;
 				while (input.peek().type != tk_right_parenthesis) {
