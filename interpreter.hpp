@@ -28,7 +28,14 @@ struct interpreter_t {
 
 	// Assign a value to an expression.
 	void assign_to(expression_t* expression, variable_t value, symbol_table_t& symbols) {
-		symbols.fetch(expression->identifier).raw = value.raw;
+		if (expression->type == et_identifier) {
+			// Assign to variable.
+			symbols.fetch(expression->identifier).raw = value.raw;
+		} else {
+			// Assign to memory.
+			variable_t left_operand = interpret_expression(expression, symbols);
+			memory.cells[left_operand.pointer] = value.raw;
+		}
 	}
 
 	// Returns true if the values of both variables are equal.
