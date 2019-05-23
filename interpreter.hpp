@@ -57,7 +57,11 @@ struct interpreter_t {
 		} else if (expression->type == et_identifier) {
 			return symbols.fetch(expression->identifier);
 		} else if (expression->type == et_indexing) {
-			// TODO
+			indexing_expression_t indexing = expression->indexing;
+			variable_t array = symbols.fetch(indexing.array);
+			variable_t index = interpret_expression(indexing.index, symbols);
+			long pointer = array.raw + index.raw;
+			return {{array.type.pointer_depth - 1}, "", memory.cells[pointer], pointer};
 		} else if (expression->type == et_function_call) {
 			function_call_expression_t function_call = expression->function_call;
 			// Interpret all the function arguments.
