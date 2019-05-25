@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
 	std::ifstream file_stream(argv[1]);
 	if (!file_stream.is_open()) {
 		std::cerr << "Could not open file \"" << argv[1] << "\"." << std::endl;
+		exit(1);
 	}
 
 	// Load the file.
